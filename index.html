@@ -154,15 +154,13 @@ td.fin{font-family:var(--mono);font-weight:800;text-align:center;font-size:17px}
       <div class="hint">Se recuerda en este dispositivo.</div>
     </div>
 
-    <div class="field"><label>2 · Universidad</label>
-      <select id="f-uni" onchange="llenarEstudiantes()"><option value="">Todas</option></select></div>
-    <div class="field"><label>3 · Estudiante</label>
+    <div class="field"><label>2 · Estudiante</label>
       <select id="estudiante"><option value="">— Seleccione el estudiante —</option></select></div>
 
     <div class="row">
-      <div class="grade c"><div class="lbl">4 · Nota conductual</div>
+      <div class="grade c"><div class="lbl">3 · Nota conductual</div>
         <input id="n-cond" type="text" inputmode="decimal" placeholder="0.0" oninput="validar(this)"></div>
-      <div class="grade p"><div class="lbl">5 · Nota práctica</div>
+      <div class="grade p"><div class="lbl">4 · Nota práctica</div>
         <input id="n-prac" type="text" inputmode="decimal" placeholder="0.0" oninput="validar(this)"></div>
     <div class="desc">
       <div class="desc-h"><span>📋 Descuentos conductuales del turno</span><small>Rúbrica · inicia en 5.0 · sin novedad = 5.0</small></div>
@@ -205,8 +203,10 @@ td.fin{font-family:var(--mono);font-weight:800;text-align:center;font-size:17px}
       </div>
       <div class="card">
         <h2>Profesores</h2>
-        <div class="field"><label>Nombre</label><input id="a-prof" placeholder="Dr. Nombre Apellido" onkeydown="if(event.key==='Enter')agregarProfesor()"></div>
-        <button class="btn" onclick="agregarProfesor()">＋ Agregar profesor</button>
+        <div class="sub">Pegue uno por línea. Los que ya están en la lista se omiten.</div>
+        <div class="field"><textarea id="a-prof" rows="5" placeholder="Nombre Apellido&#10;Nombre Apellido"></textarea>
+          <div class="hint"><a href="#" onclick="event.preventDefault();cargarAnestesiologos()">📋 Cargar la lista de anestesiólogos del servicio (41)</a></div></div>
+        <button class="btn" id="btn-prof" onclick="agregarProfesor()">＋ Agregar profesores</button>
         <div class="list" id="l-prof" style="margin-top:14px"></div>
       </div>
     </div>
@@ -250,7 +250,7 @@ async function entrar(){
   try{
     const d = await api({action:'lista', clave});
     S.clave = clave; store.set('cal_clave', clave);
-    S.estudiantes = d.estudiantes; S.profesores = d.profesores;
+    S.estudiantes = d.estudiantes; S.profSheet = d.profesores||[]; S.profesores = S.profSheet.filter(p=>p.activo!==false);
     if(d.admin){ S.claveAdmin = clave; }
     iniciarCalificar(); $('tabs').style.display='flex'; vista('calificar');
   }catch(e){ toast(e.message,false); store.del('cal_clave'); }
@@ -260,21 +260,26 @@ function salir(){ store.del('cal_clave'); S.clave=''; S.claveAdmin=''; $('clave'
 
 // ── Calificar ──
 function iniciarCalificar(){
-  const pSel=$('profesor'), guardado=store.get('cal_profesor');
-  pSel.innerHTML='<option value="">— Seleccione su nombre —</option>'+S.profesores.sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(p=>`<option value="${esc(p.id)}">${esc(p.nombre)}</option>`).join('');
-  if(guardado && S.profesores.some(p=>p.id===guardado)) pSel.value=guardado;
+  const pSel=$('profesor'); let guardado=store.get('cal_profesor');
+  // Lista de docentes = profesores del Sheet + anestesiólogos del servicio (sin repetir;
+  // los que la coordinación retiró del Sheet no se vuelven a mostrar).
+  const todosSheet=S.profSheet||S.profesores, lista=[];
+  S.profesores.forEach(p=>{ if(!lista.some(x=>mismaPersona(x.nombre,p.nombre))) lista.push({id:p.id, nombre:nombreOficial(p.nombre)}); });
+  ANESTESIOLOGOS.forEach(n=>{ if(!todosSheet.some(p=>mismaPersona(p.nombre,n))) lista.push({id:'nom:'+n, nombre:n}); });
+  S.profLista=lista.sort((a,b)=>normNom(a.nombre).localeCompare(normNom(b.nombre)));
+  if(guardado && guardado.startsWith('nom:')){ const m=S.profesores.find(p=>mismaPersona(p.nombre,guardado.slice(4))); if(m){ guardado=m.id; store.set('cal_profesor',guardado); } }
+  pSel.innerHTML='<option value="">— Seleccione su nombre ('+S.profLista.length+') —</option>'+S.profLista.map(p=>`<option value="${esc(p.id)}">${esc(p.nombre)}</option>`).join('');
+  if(guardado && S.profLista.some(p=>p.id===guardado)) pSel.value=guardado;
   actualizarWho();
-  const unis=[...new Set(S.estudiantes.map(e=>e.universidad))].sort();
-  $('f-uni').innerHTML='<option value="">Todas</option>'+unis.map(u=>`<option>${esc(u)}</option>`).join('');
   llenarEstudiantes();
-  if(!S.profesores.length || !S.estudiantes.length) toast('La coordinación aún no ha cargado '+(!S.profesores.length?'profesores':'estudiantes')+'.', false);
+  if(!S.estudiantes.length) toast('La coordinación aún no ha cargado estudiantes.', false);
 }
 function guardarProfe(){ store.set('cal_profesor',$('profesor').value); actualizarWho(); }
-function actualizarWho(){ const p=S.profesores.find(x=>x.id===$('profesor').value); $('who-txt').textContent='Profesor: '+(p?p.nombre:'— sin seleccionar —'); }
+function actualizarWho(){ const p=(S.profLista||S.profesores).find(x=>x.id===$('profesor').value); $('who-txt').textContent='Profesor: '+(p?p.nombre:'— sin seleccionar —'); }
 function llenarEstudiantes(){
-  const u=$('f-uni').value, prev=$('estudiante').value;
-  const lst=S.estudiantes.filter(e=>!u||e.universidad===u).sort((a,b)=>a.nombre.localeCompare(b.nombre));
-  $('estudiante').innerHTML='<option value="">— Seleccione el estudiante ('+lst.length+') —</option>'+lst.map(e=>`<option value="${esc(e.id)}">${esc(e.nombre)}${u?'':' · '+esc(e.universidad.replace('Universidad ',''))}</option>`).join('');
+  const prev=$('estudiante').value;
+  const lst=S.estudiantes.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+  $('estudiante').innerHTML='<option value="">— Seleccione el estudiante ('+lst.length+') —</option>'+lst.map(e=>`<option value="${esc(e.id)}">${esc(e.nombre)} · ${esc(String(e.universidad||'').replace('Universidad ',''))}</option>`).join('');
   if(lst.some(e=>e.id===prev)) $('estudiante').value=prev;
 }
 function leerNota(id){
@@ -321,7 +326,8 @@ async function guardarNota(){
   try{
     const letras=letrasDesc(), obs=$('obs').value.trim();
     const observacion=(letras.length?'Descuentos: '+letras.join(' ')+(obs?' · ':''):'')+obs;
-    const d=await api({action:'nota', clave:S.clave, profesor:prof, estudiante:est, conductual:c, practica:p, observacion});
+    const profNom=((S.profLista||[]).find(x=>x.id===prof)||{}).nombre||'';
+    const d=await api({action:'nota', clave:S.clave, profesor:prof.startsWith('nom:')?profNom:prof, profesorNombre:profNom, estudiante:est, conductual:c, practica:p, observacion});
     toast('✓ '+d.mensaje);
     $('estudiante').value=''; $('n-cond').value=''; $('n-prac').value=''; $('obs').value=''; ['n-cond','n-prac'].forEach(i=>$(i).style.borderColor=''); limpiarDescuentos();
   }catch(e){ toast(e.message,false); }
@@ -337,9 +343,17 @@ async function cargarAdmin(){
   try{
     const d=await api({action:'admin', clave:S.claveAdmin});
     S.admin=d; $('admin-login').classList.add('hidden'); $('admin-body').classList.remove('hidden');
-    S.estudiantes=d.estudiantes.filter(e=>e.activo); S.profesores=d.profesores.filter(p=>p.activo); iniciarCalificar();
+    S.estudiantes=d.estudiantes.filter(e=>e.activo); S.profSheet=d.profesores||[]; S.profesores=d.profesores.filter(p=>p.activo); iniciarCalificar();
     if(!$('a-uni').options.length) $('a-uni').innerHTML=UNIVERSIDADES.map(u=>`<option>${esc(u)}</option>`).join('');
     pintarListas();
+    // Primera vez: carga automáticamente los anestesiólogos del servicio que falten en el Sheet.
+    if(!S.sync && !store.get('cal_prof_sync')){
+      S.sync=true;
+      const ya=new Set((d.profesores||[]).map(p=>normNom(p.nombre)));
+      const falt=ANESTESIOLOGOS.filter(n=>!(d.profesores||[]).some(p=>mismaPersona(p.nombre,n)));
+      if(falt.length){ $('a-prof').value=falt.join('\n'); toast('Cargando '+falt.length+' anestesiólogos del servicio…'); await agregarProfesor(); }
+      if(!$('a-prof').value.trim()) store.set('cal_prof_sync','1');
+    }
   }catch(e){ S.claveAdmin=''; toast(e.message,false); $('admin-login').classList.remove('hidden'); $('admin-body').classList.add('hidden'); }
 }
 function pintarListas(){
@@ -356,10 +370,37 @@ async function agregarEstudiantes(){
   try{ const d=await api({action:'addEstudiantes', clave:S.claveAdmin, estudiantes:lst}); toast(d.mensaje); $('a-lista').value=''; cargarAdmin(); }
   catch(e){ toast(e.message,false); }
 }
+const ANESTESIOLOGOS = ["José Luis Amaya Saehz", "Olman Alonso Anzola Galindo", "Madeleine Ariza", "Luis Betancourt", "Darío Blanco", "Carlos Buitrago", "John Edward Burgos Pineda", "José Luis Caballero", "Rafael Patricio Cabas Daza", "Saúl Camelo", "Hernando Carrascal", "Jostan Ysai Carvajal", "Andre De Pinho Campos Campos", "Famma Deulofeu", "Lucas Dosa", "Dayanna Felizzola", "Fabián Guillermo Galarza", "Hender Garay", "Camilo Garzón", "Henry Daniel Hincapié", "Angela Carolina Jiménez Aguada", "Martha Lázaro", "Luciano Lespequeur", "Alexander Martínez", "Winston Morataya", "Darío Muñoz", "John Jairo Osorio", "Iván David Peña Urrego", "Magda Pinzón", "Ana María Piragua", "Diego Ramírez", "Elian Ríos", "Mónica Rivero", "Andrés Robayo", "Jenny Paola Rodríguez", "Geovanni Rodríguez", "Yesenia Rodríguez", "Gilardo Roncancio Arias", "Darin Santrich", "Yenny Rocío Tamayo Cáceres", "Carlos Trujillo"];
+const normNom = s => String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/^dr[a]?\.?\s+/i,'').replace(/\s+/g,' ').trim().toLowerCase();
+// ¿Mismo docente escrito distinto? ("Geovanny" = "Geovanni"; "Dr. Andrés Robayo C." = "Andrés Robayo"; "Yenny Rodriguez" = "Jenny Paola Rodríguez")
+const PART_NOM=['dra','del','las','los','san','van','von'];
+const tokNom = s => normNom(s).replace(/\byenny\b/g,'jenny').replace(/[^a-zñ. ]/g,' ').split(/\s+/).filter(w=>w.length>2 && !w.endsWith('.') && !PART_NOM.includes(w)).map(w => w.replace(/y$/, 'i'));
+function mismaPersona(a,b){
+  const A=tokNom(a), B=tokNom(b);
+  if(A.length<2||B.length<2) return normNom(a)===normNom(b);
+  if(A[0]!==B[0]) return false;
+  const [c,l]=A.length<=B.length?[A,B]:[B,A];
+  return c.every(w=>l.includes(w));
+}
+const nombreOficial = n => ANESTESIOLOGOS.find(x=>mismaPersona(x,n)) || n;
+function cargarAnestesiologos(){ $('a-prof').value = ANESTESIOLOGOS.join('\n'); $('a-prof').focus(); }
 async function agregarProfesor(){
-  const n=$('a-prof').value.trim(); if(!n) return;
-  try{ const d=await api({action:'addProfesor', clave:S.claveAdmin, nombre:n}); toast(d.mensaje); $('a-prof').value=''; cargarAdmin(); }
-  catch(e){ toast(e.message,false); }
+  const ya = new Set((S.admin?.profesores||[]).map(p=>normNom(p.nombre)));
+  const vistos = new Set();
+  const enS=S.admin?.profesores||[], tom=[];
+  const lst = $('a-prof').value.split('\n').map(l=>l.trim()).filter(Boolean).filter(n=>{ if(enS.some(p=>mismaPersona(p.nombre,n))||tom.some(x=>mismaPersona(x,n))) return false; tom.push(n); return true; });
+  if(!lst.length) return toast($('a-prof').value.trim()?'Todos esos profesores ya están en la lista.':'Escriba al menos un nombre.', false);
+  const b=$('btn-prof'); let ok=0, fallos=[];
+  ocupado(b,true,'Agregando 0/'+lst.length+'…');
+  for(const n of lst){
+    try{ await api({action:'addProfesor', clave:S.claveAdmin, nombre:n}); ok++; }
+    catch(e){ fallos.push(n); }
+    b.innerHTML='<span class="spin"></span> Agregando '+(ok+fallos.length)+'/'+lst.length+'…';
+  }
+  ocupado(b,false);
+  $('a-prof').value = fallos.join('\n');
+  toast(fallos.length ? `${ok} agregados · ${fallos.length} no se pudieron agregar (quedaron en el cuadro).` : `${ok} profesor${ok===1?'':'es'} agregado${ok===1?'':'s'}.`, !fallos.length);
+  cargarAdmin();
 }
 async function activo(tipo,id,valor){
   try{ const d=await api({action:'activo', clave:S.claveAdmin, tipo, id, valor}); toast(d.mensaje); cargarAdmin(); }
