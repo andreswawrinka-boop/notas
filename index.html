@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calificaciones Anestesiología</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══ CONFIGURACIÓN: pegue aquí la URL de su aplicación web de Google Apps Script ═══ */
+</style>
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1a0UhMA1WdJeyUk3npQxNpyuaXJJxSwmtBLvJNfGBehg_1htyoiOZ4u9_F2LfFvSg/exec';
+</script>
+<style>
+:root{
+  --navy:#050F2C; --blue:#0D47A1; --blue2:#1565C0; --teal:#006064; --green:#1B5E20; --green2:#2E7D32;
+  --red:#C62828; --amber:#E65100; --purple:#4A148C; --ink:#000; --line:#1565C0;
+  --sans:'DM Sans',system-ui,sans-serif; --mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:#fff;color:var(--ink);min-height:100vh;font-size:17px;line-height:1.5}
+.top{background:linear-gradient(135deg,#050F2C,#0D47A1,#01579B);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.top h1{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.5px;line-height:1}
+.top small{display:block;font-size:13px;font-weight:500;margin-top:3px}
+.tabs{display:flex;gap:6px}
+.tab{background:rgba(255,255,255,.14);color:#fff;border:1.5px solid rgba(255,255,255,.55);border-radius:100px;padding:6px 14px;font:700 14px var(--sans);cursor:pointer}
+.tab.on{background:#fff;color:var(--blue);border-color:#fff}
+main{max-width:760px;margin:0 auto;padding:22px 16px 60px}
+main.wide{max-width:1100px}
+.card{background:#fff;border:2px solid var(--blue);border-radius:16px;padding:22px;box-shadow:0 6px 24px rgba(13,71,161,.15);margin-bottom:18px}
+.card h2{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--navy);margin-bottom:4px}
+.sub{font-size:15px;margin-bottom:16px}
+label{display:block;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;color:var(--navy)}
+input,select,textarea{width:100%;padding:12px 14px;border:2px solid var(--blue2);border-radius:10px;font:500 16px var(--sans);color:#000;background:#fff;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(13,71,161,.25)}
+::placeholder{color:#3949AB;opacity:1}
+.field{margin-bottom:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:11px;padding:13px 22px;font:700 16px var(--sans);cursor:pointer;color:#fff;background:linear-gradient(135deg,#0D47A1,#1565C0)}
+.btn.big{width:100%;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;padding:15px}
+.btn.green{background:linear-gradient(135deg,#1B5E20,#2E7D32)}
+.btn.red{background:var(--red)}
+.btn.ghost{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+.btn.sm{padding:6px 12px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.grade{border:2px solid var(--blue);border-radius:14px;padding:14px}
+.grade.c{border-color:var(--purple)} .grade.p{border-color:var(--teal)}
+.grade .lbl{font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.5px}
+.grade.c .lbl{color:var(--purple)} .grade.p .lbl{color:var(--teal)}
+.grade input{font:600 34px var(--mono);text-align:center;padding:8px;margin:8px 0}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);padding:14px 22px;border-radius:12px;color:#fff;font-weight:700;transition:transform .3s;z-index:99;max-width:92vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{background:var(--green)} .toast.err{background:var(--red)}
+.warn{background:#fff;border:2px solid var(--amber);border-left:6px solid var(--amber);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:15px}
+.warn b{color:var(--amber)}
+.who{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--blue);color:#fff;border-radius:10px;padding:8px 14px;margin-bottom:16px;font-weight:700;font-size:15px}
+.who button{background:transparent;border:1.5px solid #fff;color:#fff;border-radius:7px;padding:3px 10px;font:700 13px var(--sans);cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{background:var(--navy);color:#fff;text-align:left;padding:8px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0}
+td{padding:8px;border-bottom:1.5px solid #BBDEFB;vertical-align:middle}
+td.num{font-family:var(--mono);font-weight:600;text-align:center}
+td.fin{font-family:var(--mono);font-weight:800;text-align:center;font-size:17px}
+.ok{color:var(--green)} .bad{color:var(--red)}
+.tblwrap{overflow:auto;max-height:520px;border:2px solid var(--blue);border-radius:12px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.filters select,.filters input{width:auto;flex:1;min-width:150px;padding:9px 12px;font-size:15px}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px;color:#fff;background:var(--blue)}
+.pill.off{background:var(--red)}
+.list{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow:auto}
+.li{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1.5px solid var(--blue2);border-radius:9px;padding:7px 10px;font-size:15px}
+.li.off{border-style:dashed;border-color:var(--red)}
+.hint{font-size:13px;margin-top:5px}
+.hidden{display:none!important}
+.row .desc{grid-column:1/-1}
+@media(max-width:560px){.row .grade.c{order:1}.row .desc{order:2}.row .grade.p{order:3}}
+.desc{margin-top:0;border:2px solid var(--purple);border-radius:14px;padding:14px;background:#fff}
+.desc-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.desc-h span{font-weight:800;font-size:16px;color:var(--purple)}
+.desc-h small{font-size:12.5px;font-weight:700;color:var(--navy)}
+.desc-s{font-size:13.5px;margin-bottom:10px;color:#000}
+.desc-list{display:flex;flex-direction:column;gap:6px}
+.dsc{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#fff;border:2px solid var(--blue2);border-radius:10px;padding:8px 10px;font:600 15px var(--sans);color:#000;cursor:pointer}
+.dsc .l{flex:0 0 30px;height:30px;border-radius:8px;background:var(--navy);color:#fff;font:800 16px var(--sans);display:flex;align-items:center;justify-content:center}
+.dsc .t{flex:1;line-height:1.3}
+.dsc .v{flex:0 0 auto;font:700 14px var(--mono);color:var(--red);white-space:nowrap}
+.dsc.on{background:var(--red);border-color:var(--red);color:#fff}
+.dsc.on .l{background:#fff;color:var(--red)}
+.dsc.on .v{color:#fff}
+.dsc.grave .v{font-weight:800}
+.desc-res{margin-top:10px;background:var(--navy);color:#fff;border-radius:10px;padding:10px 12px;font-size:15px;font-weight:600}
+.desc-res b{font:800 20px var(--mono);color:#FFD740}
+.spin{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:s .8s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+/* Celular */
+@media(max-width:560px){
+  body{font-size:16px}
+  .top{padding:10px 14px}
+  .top h1{font-size:21px}
+  .top small{font-size:12px}
+  .tabs{width:100%}
+  .tab{flex:1;padding:7px 8px;font-size:13px;text-align:center}
+  main{padding:12px 10px 40px}
+  .card{padding:16px 14px;border-radius:14px}
+  .card h2{font-size:23px}
+  .sub{font-size:14px;margin-bottom:12px}
+  .field{margin-bottom:12px}
+  input,select,textarea{padding:10px 12px;font-size:16px}
+  .who{padding:7px 10px;font-size:14px}
+  .grade{padding:10px}
+  .grade input{font-size:28px;padding:6px;margin:6px 0 2px}
+  .desc{padding:10px}
+  .desc-h span{font-size:15px}
+  .desc-s{font-size:12.5px}
+  .dsc{padding:7px 8px;font-size:14px;gap:8px}
+  .dsc .l{flex:0 0 26px;height:26px;font-size:14px}
+  .dsc .v{font-size:12.5px}
+  .desc-res{font-size:14px;padding:8px 10px}
+  .btn.big{font-size:20px;padding:13px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div><h1>Calificaciones · Anestesiología</h1><small>Hospitales de Kennedy y Bosa · Subred Suroccidente</small></div>
+  <nav class="tabs" id="tabs" style="display:none">
+    <button class="tab on" data-v="calificar" onclick="vista('calificar')">✍️ Calificar</button>
+    <button class="tab" data-v="admin" onclick="vista('admin')">👥 Estudiantes y profesores</button>
+  </nav>
+</header>
+
+<!-- ══ INGRESO ══ -->
+<main id="v-login">
+  <div class="card">
+    <h2>Ingreso de profesores</h2>
+    <div class="sub">Escriba la clave de docentes que le compartió la coordinación académica. Solo se pide una vez en este dispositivo.</div>
+    <div id="cfg-warn" class="warn hidden"><b>⚠ Falta configurar:</b> pegue la URL de la aplicación web de Google en <code>SCRIPT_URL</code> dentro de este archivo.</div>
+    <div class="field"><label>Clave</label><input type="password" id="clave" autocomplete="current-password" onkeydown="if(event.key==='Enter')entrar()"></div>
+    <button class="btn big" id="btn-entrar" onclick="entrar()">Entrar →</button>
+  </div>
+</main>
+
+<!-- ══ CALIFICAR ══ -->
+<main id="v-calificar" class="hidden">
+  <div class="card">
+    <div class="who"><span id="who-txt">Profesor: —</span><button onclick="salir()">Cerrar sesión</button></div>
+    <h2>Calificar estudiante</h2>
+    <div class="sub">Notas de 0.0 a 5.0. Puede usar punto o coma (4.5 o 4,5).</div>
+
+    <div class="field"><label>1 · Su nombre (profesor)</label>
+      <select id="profesor" onchange="guardarProfe()"><option value="">— Seleccione su nombre —</option></select>
+      <div class="hint">Se recuerda en este dispositivo.</div>
+    </div>
+
+    <div class="field"><label>2 · Universidad</label>
+      <select id="f-uni" onchange="llenarEstudiantes()"><option value="">Todas</option></select></div>
+    <div class="field"><label>3 · Estudiante</label>
+      <select id="estudiante"><option value="">— Seleccione el estudiante —</option></select></div>
+
+    <div class="row">
+      <div class="grade c"><div class="lbl">4 · Nota conductual</div>
+        <input id="n-cond" type="text" inputmode="decimal" placeholder="0.0" oninput="validar(this)"></div>
+      <div class="grade p"><div class="lbl">5 · Nota práctica</div>
+        <input id="n-prac" type="text" inputmode="decimal" placeholder="0.0" oninput="validar(this)"></div>
+    <div class="desc">
+      <div class="desc-h"><span>📋 Descuentos conductuales del turno</span><small>Rúbrica · inicia en 5.0 · sin novedad = 5.0</small></div>
+      <div class="desc-s">Toque los descuentos que aplican: la nota conductual se calcula sola (puede ajustarla a mano). Cada letra cuenta una vez por turno · mínimo 0 · con <b>E</b> o <b>F</b> el turno vale 0.</div>
+      <div class="desc-list" id="desc-list"></div>
+      <div class="desc-res" id="desc-res">Sin novedad → <b>5.0</b></div>
+    </div>
+
+    </div>
+
+    <div style="height:16px"></div>
+    <div class="field"><label>Observación (opcional)</label>
+      <textarea id="obs" rows="2" maxlength="500" placeholder="Fortalezas, aspectos por mejorar…"></textarea></div>
+
+    <button class="btn big green" id="btn-guardar" onclick="guardarNota()">Guardar y enviar nota ✓</button>
+  </div>
+</main>
+
+<!-- ══ ADMINISTRACIÓN ══ -->
+<main id="v-admin" class="hidden wide">
+  <div class="card" id="admin-login">
+    <h2>Administración</h2>
+    <div class="sub">Lista de estudiantes y profesores. Requiere la clave de administración. Las notas y los promedios se consultan en el Google Sheet.</div>
+    <div class="field"><label>Clave de administración</label><input type="password" id="clave-admin" onkeydown="if(event.key==='Enter')entrarAdmin()"></div>
+    <button class="btn" onclick="entrarAdmin()">Entrar</button>
+  </div>
+
+  <div id="admin-body" class="hidden">
+
+    <div class="row" style="align-items:start">
+      <div class="card">
+        <h2>Estudiantes</h2>
+        <div class="sub">Pegue uno por línea: <b>Nombre</b> o <b>Nombre ; Universidad</b></div>
+        <div class="field"><label>Universidad por defecto</label><select id="a-uni"></select></div>
+        <div class="field"><textarea id="a-lista" rows="5" placeholder="María García López&#10;Juan Pérez ; Universidad El Bosque"></textarea>
+          <div class="hint">Si una línea solo tiene el nombre, se usa la universidad por defecto.</div></div>
+        <button class="btn" onclick="agregarEstudiantes()">＋ Agregar estudiantes</button>
+        <div class="filters" style="margin-top:14px"><input id="e-q" placeholder="Buscar…" oninput="pintarListas()"></div>
+        <div class="list" id="l-est"></div>
+      </div>
+      <div class="card">
+        <h2>Profesores</h2>
+        <div class="field"><label>Nombre</label><input id="a-prof" placeholder="Dr. Nombre Apellido" onkeydown="if(event.key==='Enter')agregarProfesor()"></div>
+        <button class="btn" onclick="agregarProfesor()">＋ Agregar profesor</button>
+        <div class="list" id="l-prof" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const UNIVERSIDADES = ['Universidad del Rosario','Universidad de La Sabana','Universidad San Martín','Universidad Antonio Nariño','Universidad El Bosque','Universidad UDCA'];
+const S = { clave:'', claveAdmin:'', estudiantes:[], profesores:[], admin:null };
+const $ = id => document.getElementById(id);
+const store = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };
+const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const f2 = n => (Number(n) || 0).toFixed(2);
+
+function toast(msg, ok=true){ const t=$('toast'); t.textContent=msg; t.className='toast show '+(ok?'ok':'err'); clearTimeout(t._h); t._h=setTimeout(()=>t.className='toast',3200); }
+function configurado(){ return /^https:\/\/script\.google\.com\//.test(SCRIPT_URL); }
+
+async function api(payload){
+  if(!configurado()) throw new Error('Falta configurar la URL del script.');
+  const r = await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify(payload) });
+  const d = await r.json();
+  if(!d.ok) throw new Error(d.error || 'Error del servidor.');
+  return d;
+}
+function ocupado(btn, on, txt){ if(on){ btn._t=btn.innerHTML; btn.disabled=true; btn.innerHTML='<span class="spin"></span> '+txt; } else { btn.disabled=false; btn.innerHTML=btn._t; } }
+
+function vista(v){
+  ['login','calificar','admin'].forEach(x => $('v-'+x).classList.toggle('hidden', x!==v));
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.v===v));
+  if(v==='admin' && S.claveAdmin) cargarAdmin();
+}
+
+// ── Ingreso ──
+async function entrar(){
+  const clave = $('clave').value.trim() || S.clave;
+  if(!clave){ toast('Escriba la clave.', false); return; }
+  const b=$('btn-entrar'); ocupado(b,true,'Verificando…');
+  try{
+    const d = await api({action:'lista', clave});
+    S.clave = clave; store.set('cal_clave', clave);
+    S.estudiantes = d.estudiantes; S.profesores = d.profesores;
+    if(d.admin){ S.claveAdmin = clave; }
+    iniciarCalificar(); $('tabs').style.display='flex'; vista('calificar');
+  }catch(e){ toast(e.message,false); store.del('cal_clave'); }
+  finally{ ocupado(b,false); }
+}
+function salir(){ store.del('cal_clave'); S.clave=''; S.claveAdmin=''; $('clave').value=''; $('tabs').style.display='none'; vista('login'); }
+
+// ── Calificar ──
+function iniciarCalificar(){
+  const pSel=$('profesor'), guardado=store.get('cal_profesor');
+  pSel.innerHTML='<option value="">— Seleccione su nombre —</option>'+S.profesores.sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(p=>`<option value="${esc(p.id)}">${esc(p.nombre)}</option>`).join('');
+  if(guardado && S.profesores.some(p=>p.id===guardado)) pSel.value=guardado;
+  actualizarWho();
+  const unis=[...new Set(S.estudiantes.map(e=>e.universidad))].sort();
+  $('f-uni').innerHTML='<option value="">Todas</option>'+unis.map(u=>`<option>${esc(u)}</option>`).join('');
+  llenarEstudiantes();
+  if(!S.profesores.length || !S.estudiantes.length) toast('La coordinación aún no ha cargado '+(!S.profesores.length?'profesores':'estudiantes')+'.', false);
+}
+function guardarProfe(){ store.set('cal_profesor',$('profesor').value); actualizarWho(); }
+function actualizarWho(){ const p=S.profesores.find(x=>x.id===$('profesor').value); $('who-txt').textContent='Profesor: '+(p?p.nombre:'— sin seleccionar —'); }
+function llenarEstudiantes(){
+  const u=$('f-uni').value, prev=$('estudiante').value;
+  const lst=S.estudiantes.filter(e=>!u||e.universidad===u).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  $('estudiante').innerHTML='<option value="">— Seleccione el estudiante ('+lst.length+') —</option>'+lst.map(e=>`<option value="${esc(e.id)}">${esc(e.nombre)}${u?'':' · '+esc(e.universidad.replace('Universidad ',''))}</option>`).join('');
+  if(lst.some(e=>e.id===prev)) $('estudiante').value=prev;
+}
+function leerNota(id){
+  const raw=$(id).value.trim().replace(',','.'); if(raw==='') return null;
+  const n=Number(raw); return (isFinite(n)&&n>=0&&n<=5) ? Math.round(n*10)/10 : NaN;
+}
+function validar(el){ el.style.borderColor = Number.isNaN(leerNota(el.id)) ? 'var(--red)' : ''; }
+// ── Rúbrica: descuentos conductuales ──
+const DESCUENTOS = [
+  {l:'A', t:'Llegada tarde (> 10 min) sin aviso', v:0.5},
+  {l:'B', t:'Celular no clínico en sala · uniforme o bioseguridad incompletos', v:0.5},
+  {l:'C', t:'Se retira del servicio sin avisar', v:2.0},
+  {l:'D', t:'Trato irrespetuoso con paciente, familia o personal', v:2.0},
+  {l:'E', t:'Ausencia injustificada', v:null, cero:true, txt:'0 en el turno'},
+  {l:'F', t:'Falta ética grave → informar a coordinación el mismo día', v:null, cero:true, txt:'0 + reporte'}
+];
+const DSEL = new Set();
+function pintarDescuentos(){
+  $('desc-list').innerHTML = DESCUENTOS.map(d=>`<button type="button" class="dsc ${DSEL.has(d.l)?'on':''} ${d.cero?'grave':''}" onclick="toggleDesc('${d.l}')" aria-pressed="${DSEL.has(d.l)}"><span class="l">${d.l}</span><span class="t">${esc(d.t)}</span><span class="v">${d.cero?d.txt:'− '+d.v.toFixed(1)}</span></button>`).join('');
+}
+function letrasDesc(){ return DESCUENTOS.filter(d=>DSEL.has(d.l)).map(d=>d.l); }
+function calcConductual(){
+  const sel = DESCUENTOS.filter(d=>DSEL.has(d.l));
+  if(!sel.length){ $('desc-res').innerHTML='Sin novedad → <b>5.0</b>'; return 5; }
+  if(sel.some(d=>d.cero)){ $('desc-res').innerHTML='Descuentos <b style="font-size:16px;color:#fff">'+letrasDesc().join(' ')+'</b> → con E o F el turno vale <b>0.0</b>'+(DSEL.has('F')?' · <span style="color:#FFD740">informar a coordinación hoy</span>':''); return 0; }
+  const n = Math.max(0, 5 - sel.reduce((a,d)=>a+d.v,0));
+  $('desc-res').innerHTML='Descuentos <b style="font-size:16px;color:#fff">'+letrasDesc().join(' ')+'</b> → 5.0 '+sel.map(d=>'− '+d.v.toFixed(1)).join(' ')+' = <b>'+n.toFixed(1)+'</b>';
+  return n;
+}
+function toggleDesc(l){
+  DSEL.has(l) ? DSEL.delete(l) : DSEL.add(l);
+  pintarDescuentos();
+  const n = calcConductual();
+  $('n-cond').value = n.toFixed(1); validar($('n-cond'));
+}
+function limpiarDescuentos(){ DSEL.clear(); pintarDescuentos(); calcConductual(); }
+
+async function guardarNota(){
+  const prof=$('profesor').value, est=$('estudiante').value, c=leerNota('n-cond'), p=leerNota('n-prac');
+  if(!prof) return toast('Seleccione su nombre.', false);
+  if(!est) return toast('Seleccione el estudiante.', false);
+  if(c===null||p===null||isNaN(c)||isNaN(p)) return toast('Las dos notas deben estar entre 0.0 y 5.0.', false);
+  const b=$('btn-guardar'); ocupado(b,true,'Enviando…');
+  try{
+    const letras=letrasDesc(), obs=$('obs').value.trim();
+    const observacion=(letras.length?'Descuentos: '+letras.join(' ')+(obs?' · ':''):'')+obs;
+    const d=await api({action:'nota', clave:S.clave, profesor:prof, estudiante:est, conductual:c, practica:p, observacion});
+    toast('✓ '+d.mensaje);
+    $('estudiante').value=''; $('n-cond').value=''; $('n-prac').value=''; $('obs').value=''; ['n-cond','n-prac'].forEach(i=>$(i).style.borderColor=''); limpiarDescuentos();
+  }catch(e){ toast(e.message,false); }
+  finally{ ocupado(b,false); }
+}
+
+// ── Administración ──
+async function entrarAdmin(){
+  const k=$('clave-admin').value.trim(); if(!k) return;
+  S.claveAdmin=k; await cargarAdmin();
+}
+async function cargarAdmin(){
+  try{
+    const d=await api({action:'admin', clave:S.claveAdmin});
+    S.admin=d; $('admin-login').classList.add('hidden'); $('admin-body').classList.remove('hidden');
+    S.estudiantes=d.estudiantes.filter(e=>e.activo); S.profesores=d.profesores.filter(p=>p.activo); iniciarCalificar();
+    if(!$('a-uni').options.length) $('a-uni').innerHTML=UNIVERSIDADES.map(u=>`<option>${esc(u)}</option>`).join('');
+    pintarListas();
+  }catch(e){ S.claveAdmin=''; toast(e.message,false); $('admin-login').classList.remove('hidden'); $('admin-body').classList.add('hidden'); }
+}
+function pintarListas(){
+  const q=$('e-q').value.trim().toLowerCase();
+  const est=(S.admin?.estudiantes||[]).filter(e=>!q||(e.nombre+' '+e.universidad).toLowerCase().includes(q)).sort((a,b)=>(b.activo-a.activo)||a.nombre.localeCompare(b.nombre));
+  $('l-est').innerHTML = est.length ? est.map(e=>`<div class="li ${e.activo?'':'off'}"><div><b>${esc(e.nombre)}</b><div style="font-size:13px">${esc(e.universidad)}</div></div>${e.activo?`<button class="btn sm red" data-id="${esc(e.id)}" onclick="activo('estudiante',this.dataset.id,false)">Retirar</button>`:`<button class="btn sm" data-id="${esc(e.id)}" onclick="activo('estudiante',this.dataset.id,true)">Reactivar</button>`}</div>`).join('') : '<div class="hint">Sin estudiantes.</div>';
+  const pr=(S.admin?.profesores||[]).sort((a,b)=>(b.activo-a.activo)||a.nombre.localeCompare(b.nombre));
+  $('l-prof').innerHTML = pr.length ? pr.map(p=>`<div class="li ${p.activo?'':'off'}"><b>${esc(p.nombre)}</b>${p.activo?`<button class="btn sm red" data-id="${esc(p.id)}" onclick="activo('profesor',this.dataset.id,false)">Retirar</button>`:`<button class="btn sm" data-id="${esc(p.id)}" onclick="activo('profesor',this.dataset.id,true)">Reactivar</button>`}</div>`).join('') : '<div class="hint">Sin profesores.</div>';
+}
+async function agregarEstudiantes(){
+  const du=$('a-uni').value;
+  const lst=$('a-lista').value.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{ const [n,u]=l.split(/[;\t]/).map(s=>s.trim()); return {nombre:n, universidad:u||du}; });
+  if(!lst.length) return toast('Pegue al menos un nombre.', false);
+  try{ const d=await api({action:'addEstudiantes', clave:S.claveAdmin, estudiantes:lst}); toast(d.mensaje); $('a-lista').value=''; cargarAdmin(); }
+  catch(e){ toast(e.message,false); }
+}
+async function agregarProfesor(){
+  const n=$('a-prof').value.trim(); if(!n) return;
+  try{ const d=await api({action:'addProfesor', clave:S.claveAdmin, nombre:n}); toast(d.mensaje); $('a-prof').value=''; cargarAdmin(); }
+  catch(e){ toast(e.message,false); }
+}
+async function activo(tipo,id,valor){
+  try{ const d=await api({action:'activo', clave:S.claveAdmin, tipo, id, valor}); toast(d.mensaje); cargarAdmin(); }
+  catch(e){ toast(e.message,false); }
+}
+
+// ── Inicio ──
+pintarDescuentos();
+if(!configurado()) $('cfg-warn').classList.remove('hidden');
+const guardada=store.get('cal_clave');
+if(guardada && configurado()){ S.clave=guardada; entrar(); }
+</script>
+</body>
+</html>
